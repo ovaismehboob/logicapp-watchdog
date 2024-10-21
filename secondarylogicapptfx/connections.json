@@ -1,0 +1,23 @@
+{
+  "managedApiConnections": {
+    "azureautomation": {
+      "api": {
+        "id": "/subscriptions/subscriptionid/providers/Microsoft.Web/locations/eastus/managedApis/azureautomation"
+      },
+      "connection": {
+        "id": "/subscriptions/subscriptionid/resourceGroups/la-secondaryrg/providers/Microsoft.Web/connections/azureautomation"
+      },
+      "authentication": {
+        "type": "ManagedServiceIdentity"
+      },
+      "connectionRuntimeUrl": "https://test.09.common.logic-eastus.azure-apihub.net/apim/azureautomation/test",
+      "connectionProperties": {
+        "authentication": {
+          "type": "ManagedServiceIdentity",
+          "audience": "https://management.core.windows.net/"
+        }
+      }
+    }
+  },
+  "serviceProviderConnections": {}
+}

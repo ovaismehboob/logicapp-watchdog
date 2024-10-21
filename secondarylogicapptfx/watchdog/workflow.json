@@ -1,0 +1,89 @@
+{
+  "definition": {
+    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+    "actions": {
+      "HTTP": {
+        "type": "Http",
+        "inputs": {
+          "uri": "https://primarylogicapptfx.azurewebsites.net:443/api/healthcheck/triggers/When_a_HTTP_request_is_received/invoke?api-version=2022-05-01&sp=%2Ftriggers%2FWhen_a_HTTP_request_is_received%2Frun&sv=1.0&sig=",
+          "method": "POST"
+        },
+        "runAfter": {},
+        "runtimeConfiguration": {
+          "contentTransfer": {
+            "transferMode": "Chunked"
+          }
+        }
+      },
+      "Condition": {
+        "type": "If",
+        "expression": {
+          "and": [
+            {
+              "equals": [
+                "@outputs('HTTP')?['statusCode']",
+                200
+              ]
+            }
+          ]
+        },
+        "actions": {
+          "Compose": {
+            "type": "Compose",
+            "inputs": "@body('HTTP')"
+          }
+        },
+        "else": {
+          "actions": {
+            "Compose_1": {
+              "type": "Compose",
+              "inputs": "@outputs('HTTP')?['statusCode']"
+            },
+            "Create_job": {
+              "type": "ApiConnection",
+              "inputs": {
+                "host": {
+                  "connection": {
+                    "referenceName": "azureautomation"
+                  }
+                },
+                "method": "put",
+                "path": "/subscriptions/@{encodeURIComponent('subscriptionid')}/resourceGroups/@{encodeURIComponent('resourcegroup')}/providers/Microsoft.Automation/automationAccounts/@{encodeURIComponent('logicappautomationdr')}/jobs",
+                "queries": {
+                  "x-ms-api-version": "2015-10-31",
+                  "runbookName": "EnableDRLogicApp",
+                  "wait": false
+                }
+              },
+              "runAfter": {
+                "Compose_1": [
+                  "SUCCEEDED"
+                ]
+              }
+            }
+          }
+        },
+        "runAfter": {
+          "HTTP": [
+            "SUCCEEDED",
+            "FAILED",
+            "TIMEDOUT"
+          ]
+        }
+      }
+    },
+    "contentVersion": "1.0.0.0",
+    "outputs": {},
+    "triggers": {
+      "Recurrence": {
+        "type": "Recurrence",
+        "recurrence": {
+          "interval": 1,
+          "frequency": "Week",
+          "timeZone": "Arabian Standard Time"
+        }
+      }
+    }
+  },
+  "kind": "Stateful"
+}
